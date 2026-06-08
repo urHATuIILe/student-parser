@@ -23,6 +23,7 @@ async def on_new_message(event):
     chat_id = event.chat_id
     username = sender.username if sender else None
     tg_name = sender.first_name if sender else None
+    phone = sender.phone if sender else None
     
     lead = Lead(
         message_id = message_id,
@@ -30,6 +31,7 @@ async def on_new_message(event):
         sender_username = username,
         tg_name = tg_name,
         text = text,
+        phone=phone,
     )
     
     await save_lead(lead)

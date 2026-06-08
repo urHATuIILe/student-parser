@@ -5,9 +5,10 @@ from config import settings
 from parser.classifier import is_tutor_request
 
 from db.models import Lead
-from db.database import save_lead
+from db.database import save_lead, is_duplicate
 
 from bot.poster import post_lead
+
 
 client = TelegramClient('session/parser', settings.TELEGRAM_API_ID, settings.TELEGRAM_API_HASH)
 
@@ -22,6 +23,9 @@ async def on_new_message(event):
     sender = await event.get_sender()
     message_id = event.message.id
     chat_id = event.chat_id
+    if await is_duplicate(message_id, str(chat_id)):
+        logger.info("Дубль, пропускаю")
+        return
     username = sender.username if sender else None
     tg_name = sender.first_name if sender else None
     phone = sender.phone if sender else None

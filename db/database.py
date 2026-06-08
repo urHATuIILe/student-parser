@@ -1,4 +1,4 @@
-
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from config import settings
@@ -20,3 +20,14 @@ async def save_lead(lead: Lead):
     async with AsyncSessionFactory() as session:
         session.add(lead)
         await session.commit()
+        
+async def is_duplicate(message_id: int, chat_id: str) -> bool:
+    async with AsyncSessionFactory() as session:
+        result = await session.execute(
+            select(exists().where(
+                Lead.message_id == message_id,
+                Lead.chat_id == chat_id,                
+            ))
+        )
+        return result.scalar()
+    

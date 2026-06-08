@@ -1,0 +1,5 @@
+Telethon
+aiogram
+asyncpg
+SQLAlchemy
+pydantic-settings

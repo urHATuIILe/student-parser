@@ -16,3 +16,6 @@ async def main():
         logger.error(f"Неожиданная ошибка: {e}")
     finally:
         logger.info("Завершение работы...")
+        
+if __name__ == "__main__":
+    asyncio.run(main())

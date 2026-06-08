@@ -35,8 +35,16 @@ async def on_new_message(event):
         phone=phone,
     )
     
-    await save_lead(lead)
-    await post_lead(lead)
+    try:
+        await save_lead(lead)
+        logger.success("Сообщение сохранено")
+    except Exception as e:
+        logger.error(f"Ошибка сохранения в БД {e}")
+    
+    try:
+        await post_lead(lead)
+    except Exception as e:
+        logger.error(f"Ошибка постинга {e}")
     
 async def start_parser():
     logger.info("Подключаюсь к Telegram...")

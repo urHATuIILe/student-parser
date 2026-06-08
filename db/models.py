@@ -21,4 +21,5 @@ class Lead(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     is_posted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    phone: Mapped[str | None] = mapped_column(String(17), nullable=True)
     

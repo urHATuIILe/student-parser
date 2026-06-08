@@ -1,3 +1,4 @@
+from loguru import logger
 from telethon import TelegramClient, events
 from config import settings
 
@@ -12,8 +13,8 @@ client = TelegramClient('session/parser', settings.TELEGRAM_API_ID, settings.TEL
 
 @client.on(events.NewMessage(chats=settings.chats_list))
 async def on_new_message(event):
-    print(f"chat_id: {event.chat_id}")
-    print(f"Новое сообщение: {event.message.text}")
+    logger.info(f"chat_id: {event.chat_id}")
+    logger.info(f"Новое сообщение: {event.message.text}")
     text = event.message.text
     if not is_tutor_request(text):
         return 
@@ -38,8 +39,8 @@ async def on_new_message(event):
     await post_lead(lead)
     
 async def start_parser():
-    print("Подключаюсь к Telegram...")
-    print(f"Чаты для мониторинга: {settings.chats_list}")
+    logger.info("Подключаюсь к Telegram...")
+    logger.info(f"Чаты для мониторинга: {settings.chats_list}")
     await client.start()
-    print("Подключился! Слушаю чаты...")
+    logger.success("Подключился! Слушаю чаты...")
     await client.run_until_disconnected()

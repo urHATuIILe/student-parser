@@ -1,3 +1,4 @@
+from loguru import logger
 from aiogram import Bot
 
 from config import settings
@@ -18,10 +19,10 @@ def format_lead(lead: Lead) -> str:
     
     
 async def post_lead(lead: Lead):
-    print("Отправляю в канал...")
+    logger.info("Отправляю в канал...")
     text = format_lead(lead)
     try:
         await bot.send_message(settings.CHANNEL_ID, text)
-        print("Отправлено!")
+        logger.success("Отправлено!")
     except Exception as e:
-        print(f"Ошибка: {e}")
+        logger.warning(f"Ошибка: {e}")

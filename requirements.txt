@@ -3,3 +3,4 @@ aiogram
 asyncpg
 SQLAlchemy
 pydantic-settings
+loguru

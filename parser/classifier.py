@@ -2,7 +2,7 @@ KEYWORDS = [
     "ищу репетитора",
     "нужен репетитор",
     "репетитор",
-    "занятия", 
+    "занятия",
     "дополнительные занятия",
     "подготовка к экзамену",
     "экзамен",
@@ -13,8 +13,11 @@ KEYWORDS = [
 ]
 
 
-def is_tutor_request(text: str) -> bool:
+def is_tutor_request(text: str | None) -> bool:
+    if not text:
+        return False
+    text_lower = text.lower()
     for keyword in KEYWORDS:
-        if keyword in text.lower():
+        if keyword in text_lower:
             return True
     return False

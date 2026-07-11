@@ -6,7 +6,6 @@ from parser.classifier import is_tutor_request
 
 from db.models import Lead
 from db.database import save_lead, is_duplicate
-
 from bot.poster import post_lead
 
 

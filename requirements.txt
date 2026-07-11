@@ -1,6 +1,7 @@
-Telethon
-aiogram
-asyncpg
-SQLAlchemy
-pydantic-settings
-loguru
+Telethon==1.43.2
+aiogram==3.28.2
+asyncpg==0.31.0
+SQLAlchemy==2.0.50
+pydantic-settings==2.14.1
+loguru==0.7.3
+vkbottle==4.8.2

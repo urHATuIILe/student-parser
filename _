@@ -1,0 +1,66 @@
+import sys
+print("Python", sys.version)
+
+# 1) config
+try:
+    from config import settings
+    print("[OK] config loaded")
+    print("     DATABASE_URL:", settings.DATABASE_URL)
+    print("     CHATS_TO_MONITOR:", settings.CHATS_TO_MONITOR)
+    print("     chats_list:", settings.chats_list)
+    print("     VK_TOKEN set:", bool(settings.VK_TOKEN))
+    print("     VK_GROUPS:", settings.VK_GROUPS)
+    print("     vk_groups_list:", settings.vk_groups_list)
+except Exception as e:
+    import traceback
+    print("[FAIL] config import")
+    traceback.print_exc()
+    sys.exit(1)
+
+# 2) db layer
+try:
+    from db.database import engine, AsyncSessionFactory, init_db, close_db, save_lead, is_duplicate, save_vk_lead, is_vk_duplicate
+    from db.models import Base, Lead, VkLead
+    print("[OK] db layer import")
+except Exception as e:
+    import traceback
+    print("[FAIL] db layer import")
+    traceback.print_exc()
+    sys.exit(1)
+
+# 3) parser modules (import-time only, no network)
+try:
+    from parser.classifier import is_tutor_request
+    from parser.vk_utils import get_api, resolve_group_id, get_user_info, get_group_info, full_name
+    from parser.vk_posts import parse_group_posts, parse_all_groups_posts
+    from parser.vk_comments import parse_group_comments, parse_all_groups_comments
+    from parser.vk_messages import start_vk_parser
+    from parser.telethon_client import start_parser, client, on_new_message
+    print("[OK] parser modules import")
+except Exception as e:
+    import traceback
+    print("[FAIL] parser modules import")
+    traceback.print_exc()
+    sys.exit(1)
+
+# 4) bot poster
+try:
+    from bot.poster import bot, post_lead, post_vk_lead, format_lead, format_vk_lead
+    print("[OK] bot.poster import")
+except Exception as e:
+    import traceback
+    print("[FAIL] bot.poster import")
+    traceback.print_exc()
+    sys.exit(1)
+
+# 5) main entry
+try:
+    import main
+    print("[OK] main import")
+except Exception as e:
+    import traceback
+    print("[FAIL] main import")
+    traceback.print_exc()
+    sys.exit(1)
+
+print("\n=== IMPORT-TIME CHECKS PASSED ===")

@@ -47,3 +47,5 @@ htmlcov/
 .tox/
 
 session
+
+alembic/versions/*.pyc

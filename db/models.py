@@ -43,3 +43,22 @@ class VkLead(Base):
     is_posted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     parsed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class VkDialogLead(Base):
+    """Личные сообщения, присланные сообществу (диалоги), а не со стены."""
+
+    __tablename__ = "vk_dialog_leads"
+    __table_args__ = (
+        UniqueConstraint("message_id", "group_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    group_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    sender_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    sender_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    sender_screen_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    is_posted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

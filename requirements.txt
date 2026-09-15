@@ -8,14 +8,8 @@ vkbottle
 loguru
 pydantic-settings
 pydantic
-fastapi
-uvicorn[standard]
-celery
-redis
 aiohttp
 httpx
-python-multipart
-email-validator
 pytest
 pytest-asyncio
 pytest-cov

@@ -4,6 +4,7 @@ import asyncio
 from db.database import init_db, close_db
 from parser.telethon_client import start_parser
 from parser.vk_messages import start_vk_parser
+from parser.vk_dialogs import start_vk_dialogs_parser
 
 
 async def main():
@@ -11,10 +12,11 @@ async def main():
     await init_db()
     logger.info("БД готова, запускаю парсеры (Telegram + VK)...")
 
-    # Запускаем оба парсера параллельно
+    # Запускаем все парсеры параллельно
     tasks = [
         asyncio.create_task(start_parser(), name="telegram_parser"),
-        asyncio.create_task(start_vk_parser(), name="vk_parser"),
+        asyncio.create_task(start_vk_parser(), name="vk_wall_parser"),
+        asyncio.create_task(start_vk_dialogs_parser(), name="vk_dialogs_parser"),
     ]
 
     try:

@@ -5,7 +5,7 @@ from config import settings
 from parser.classifier import is_tutor_request
 
 from db.models import Lead
-from db.database import save_lead, is_duplicate
+from db.database import save_lead, is_duplicate, mark_lead_posted
 from bot.poster import post_lead
 
 
@@ -46,6 +46,7 @@ async def on_new_message(event):
     
     try:
         await post_lead(lead)
+        await mark_lead_posted(lead.id)
     except Exception as e:
         logger.error(f"Ошибка постинга {e}")
     

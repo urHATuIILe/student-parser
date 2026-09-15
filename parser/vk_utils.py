@@ -66,9 +66,9 @@ async def get_group_info(group_id: int) -> dict:
     """Возвращает {name, screen_name} по id группы."""
     vk = get_api()
     try:
-        groups = await vk.groups.get_by_id(group_id=abs(group_id))
-        if groups:
-            g = groups[0]
+        response = await vk.groups.get_by_id(group_id=abs(group_id))
+        if response.groups:
+            g = response.groups[0]
             return {
                 "name": getattr(g, "name", "") or "",
                 "screen_name": getattr(g, "screen_name", "") or f"club{abs(group_id)}",

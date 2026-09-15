@@ -1,23 +1,28 @@
+import re
+
+# Достаточно корней слов — подстрочное совпадение само покрывает падежи и число
+# ("репетитор" находит и "репетитора", и "репетиторов").
 KEYWORDS = [
-    "ищу репетитора",
-    "нужен репетитор",
     "репетитор",
-    "занятия",
-    "дополнительные занятия",
-    "подготовка к экзамену",
+    "преподавател",
+    "учител",
+    "занят",
+    "уроки по",
+    "подтян",
     "экзамен",
-    "подготовка к егэ",
     "егэ",
-    "подготовка к огэ",
     "огэ",
+    "домашк",
+    "домашнее задание",
 ]
+
+_PATTERN = re.compile(
+    r"\b(?:" + "|".join(re.escape(k) for k in KEYWORDS) + r")",
+    re.IGNORECASE,
+)
 
 
 def is_tutor_request(text: str | None) -> bool:
     if not text:
         return False
-    text_lower = text.lower()
-    for keyword in KEYWORDS:
-        if keyword in text_lower:
-            return True
-    return False
+    return bool(_PATTERN.search(text))

@@ -9,7 +9,7 @@ from config import settings
 from parser.classifier import is_tutor_request
 from parser.vk_utils import get_api, resolve_group_id, get_user_info, full_name
 from db.models import VkLead
-from db.database import save_vk_lead, is_vk_duplicate
+from db.database import save_vk_lead, is_vk_duplicate, mark_vk_lead_posted
 from bot.poster import post_vk_lead
 
 
@@ -77,6 +77,7 @@ async def parse_group_posts(group: int | str) -> list[VkLead]:
 
         try:
             await post_vk_lead(lead)
+            await mark_vk_lead_posted(lead.id)
         except Exception as e:
             logger.error(f"Ошибка постинга VK-лида: {e}")
 

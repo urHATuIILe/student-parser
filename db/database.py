@@ -1,8 +1,8 @@
-from sqlalchemy import select, exists
+from sqlalchemy import select, exists, update
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from config import settings
-from db.models import Base, Lead, VkLead
+from db.models import Base, Lead, VkLead, VkDialogLead
 
 engine = create_async_engine(settings.DATABASE_URL)
 
@@ -31,6 +31,13 @@ async def is_duplicate(message_id: int, chat_id: str) -> bool:
         )
         return result.scalar()
 
+async def mark_lead_posted(lead_id: int):
+    async with AsyncSessionFactory() as session:
+        await session.execute(
+            update(Lead).where(Lead.id == lead_id).values(is_posted=True)
+        )
+        await session.commit()
+
 
 # ===== VK =====
 
@@ -58,4 +65,35 @@ async def is_vk_duplicate(post_id: int, group_id: int, comment_id: int | None = 
                 ))
             )
         return result.scalar()
-    
+
+async def mark_vk_lead_posted(lead_id: int):
+    async with AsyncSessionFactory() as session:
+        await session.execute(
+            update(VkLead).where(VkLead.id == lead_id).values(is_posted=True)
+        )
+        await session.commit()
+
+
+# ===== VK: личные сообщения сообществу =====
+
+async def save_vk_dialog_lead(lead: VkDialogLead):
+    async with AsyncSessionFactory() as session:
+        session.add(lead)
+        await session.commit()
+
+async def is_vk_dialog_duplicate(message_id: int, group_id: int) -> bool:
+    async with AsyncSessionFactory() as session:
+        result = await session.execute(
+            select(exists().where(
+                VkDialogLead.message_id == message_id,
+                VkDialogLead.group_id == group_id,
+            ))
+        )
+        return result.scalar()
+
+async def mark_vk_dialog_lead_posted(lead_id: int):
+    async with AsyncSessionFactory() as session:
+        await session.execute(
+            update(VkDialogLead).where(VkDialogLead.id == lead_id).values(is_posted=True)
+        )
+        await session.commit()

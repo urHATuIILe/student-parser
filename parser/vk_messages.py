@@ -6,6 +6,7 @@ import asyncio
 from loguru import logger
 
 from config import settings
+from targets import VK_GROUPS
 from parser.vk_utils import get_api
 from parser.vk_posts import parse_all_groups_posts
 from parser.vk_comments import parse_all_groups_comments
@@ -27,8 +28,8 @@ async def start_vk_parser() -> None:
     if not settings.VK_TOKEN:
         logger.warning("VK_TOKEN не задан — VK-парсер не запущен")
         return
-    if not settings.vk_groups_list:
-        logger.warning("VK_GROUPS не задан — VK-парсер не запущен")
+    if not VK_GROUPS:
+        logger.warning("vk.groups в targets.yaml пуст — VK-парсер не запущен")
         return
 
     # Инициализируем API заранее, чтобы отвалиться сразу при неверном токене
@@ -41,7 +42,7 @@ async def start_vk_parser() -> None:
 
     interval = max(60, settings.VK_POLLING_INTERVAL)
     logger.info(
-        f"VK-парсер запущен. Группы: {settings.vk_groups_list}. "
+        f"VK-парсер запущен. Группы: {VK_GROUPS}. "
         f"Интервал опроса: {interval} сек."
     )
 

@@ -16,6 +16,8 @@ class Lead(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     chat_id: Mapped[str] = mapped_column(String(15), nullable=False)
+    chat_title: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    chat_link: Mapped[str | None] = mapped_column(String(256), nullable=True)
     tg_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
     sender_username: Mapped[str | None] = mapped_column(String(32), nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -38,6 +40,8 @@ class VkLead(Base):
     author_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     author_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     author_screen_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    author_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    group_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     source_type: Mapped[str] = mapped_column(String(16), nullable=False)  # 'post' | 'comment'
     is_posted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -45,20 +49,31 @@ class VkLead(Base):
     parsed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
-class VkDialogLead(Base):
-    """Личные сообщения, присланные сообществу (диалоги), а не со стены."""
+class VkMessageLead(Base):
+    """Входящие сообщения через LongPoll: личные сообщения сообществу и беседы.
 
-    __tablename__ = "vk_dialog_leads"
+    Беседа отличается от личного диалога наличием chat_id (peer_id >= 2_000_000_000);
+    conversation_message_id уникален в рамках peer_id, а не глобально — поэтому
+    дедуп идёт по паре (peer_id, conversation_message_id), а не по message.id
+    (тот у сообщений сообщества не всегда надёжен).
+    """
+
+    __tablename__ = "vk_message_leads"
     __table_args__ = (
-        UniqueConstraint("message_id", "group_id"),
+        UniqueConstraint("peer_id", "conversation_message_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    peer_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    conversation_message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     group_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    chat_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    chat_title: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    source_type: Mapped[str] = mapped_column(String(16), nullable=False)  # 'dialog' | 'chat'
     sender_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     sender_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
     sender_screen_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    sender_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     is_posted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

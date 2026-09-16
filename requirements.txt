@@ -8,6 +8,7 @@ vkbottle
 loguru
 pydantic-settings
 pydantic
+PyYAML
 aiohttp
 httpx
 pytest

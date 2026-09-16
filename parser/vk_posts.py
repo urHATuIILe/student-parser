@@ -6,8 +6,9 @@ from loguru import logger
 from vkbottle.exception_factory import VKAPIError
 
 from config import settings
+from targets import VK_GROUPS
 from parser.classifier import is_tutor_request
-from parser.vk_utils import get_api, resolve_group_id, get_user_info, full_name
+from parser.vk_utils import get_api, resolve_group_id, get_user_info, get_group_info, full_name
 from db.models import VkLead
 from db.database import save_vk_lead, is_vk_duplicate, mark_vk_lead_posted
 from bot.poster import post_vk_lead
@@ -44,24 +45,33 @@ async def parse_group_posts(group: int | str) -> list[VkLead]:
             logger.debug(f"Дубль поста {post_id} в группе {owner_id}, пропускаю")
             continue
 
-        # Автор поста
+        # Автор поста. Если пост от имени самой группы (from_id < 0) — контактов
+        # нет, писать некому, такой лид бесполезен и пропускается.
         from_id = getattr(item, "from_id", None) or getattr(item, "signer_id", None)
-        author_name = None
-        author_screen = None
-        author_id_db = None
-        if isinstance(from_id, int) and from_id > 0:
-            author_id_db = from_id
-            info = await get_user_info(from_id)
-            author_name = full_name(info) or None
-            author_screen = info.get("screen_name")
+        if not isinstance(from_id, int) or from_id <= 0:
+            continue
+
+        info = await get_user_info(from_id)
+        if not info:
+            continue
+        author_name = full_name(info) or None
+        author_screen = info.get("screen_name")
+        author_phone = info.get("phone")
+        if not author_screen and not author_phone:
+            logger.info(f"У автора поста {post_id} нет ни ника, ни телефона — пропускаю")
+            continue
+
+        group_info = await get_group_info(owner_id)
 
         lead = VkLead(
             post_id=post_id,
             group_id=owner_id,
             comment_id=None,
-            author_id=author_id_db,
+            author_id=from_id,
             author_name=author_name,
             author_screen_name=author_screen,
+            author_phone=author_phone,
+            group_name=group_info.get("name"),
             text=text,
             source_type="post",
             parsed_at=datetime.utcnow(),
@@ -87,7 +97,7 @@ async def parse_group_posts(group: int | str) -> list[VkLead]:
 async def parse_all_groups_posts() -> list[VkLead]:
     """Парсит посты во всех группах из настроек."""
     all_created: list[VkLead] = []
-    for group in settings.vk_groups_list:
+    for group in VK_GROUPS:
         try:
             created = await parse_group_posts(group)
             all_created.extend(created)

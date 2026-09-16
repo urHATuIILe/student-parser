@@ -2,7 +2,7 @@ from sqlalchemy import select, exists, update
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from config import settings
-from db.models import Base, Lead, VkLead, VkDialogLead
+from db.models import Base, Lead, VkLead, VkMessageLead
 
 engine = create_async_engine(settings.DATABASE_URL)
 
@@ -74,26 +74,26 @@ async def mark_vk_lead_posted(lead_id: int):
         await session.commit()
 
 
-# ===== VK: личные сообщения сообществу =====
+# ===== VK: входящие сообщения (диалоги + беседы) =====
 
-async def save_vk_dialog_lead(lead: VkDialogLead):
+async def save_vk_message_lead(lead: VkMessageLead):
     async with AsyncSessionFactory() as session:
         session.add(lead)
         await session.commit()
 
-async def is_vk_dialog_duplicate(message_id: int, group_id: int) -> bool:
+async def is_vk_message_duplicate(peer_id: int, conversation_message_id: int) -> bool:
     async with AsyncSessionFactory() as session:
         result = await session.execute(
             select(exists().where(
-                VkDialogLead.message_id == message_id,
-                VkDialogLead.group_id == group_id,
+                VkMessageLead.peer_id == peer_id,
+                VkMessageLead.conversation_message_id == conversation_message_id,
             ))
         )
         return result.scalar()
 
-async def mark_vk_dialog_lead_posted(lead_id: int):
+async def mark_vk_message_lead_posted(lead_id: int):
     async with AsyncSessionFactory() as session:
         await session.execute(
-            update(VkDialogLead).where(VkDialogLead.id == lead_id).values(is_posted=True)
+            update(VkMessageLead).where(VkMessageLead.id == lead_id).values(is_posted=True)
         )
         await session.commit()

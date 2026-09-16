@@ -4,7 +4,7 @@ import asyncio
 from db.database import init_db, close_db
 from parser.telethon_client import start_parser
 from parser.vk_messages import start_vk_parser
-from parser.vk_dialogs import start_vk_dialogs_parser
+from parser.vk_inbox import start_vk_inbox_parser
 
 
 async def main():
@@ -16,7 +16,7 @@ async def main():
     tasks = [
         asyncio.create_task(start_parser(), name="telegram_parser"),
         asyncio.create_task(start_vk_parser(), name="vk_wall_parser"),
-        asyncio.create_task(start_vk_dialogs_parser(), name="vk_dialogs_parser"),
+        asyncio.create_task(start_vk_inbox_parser(), name="vk_inbox_parser"),
     ]
 
     try:

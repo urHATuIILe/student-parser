@@ -1,5 +1,6 @@
 # Environment
 .env
+targets.yaml
 .venv/
 venv/
 env/
